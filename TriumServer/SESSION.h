@@ -7,11 +7,13 @@ class SESSION
 	OVER_PLUS _recv_over;
 
 public:
-	mutex								_s_lock;
-	SESSION_STATE						_state;
-	int									_id;
-	SOCKET								_socket;
-	int									_prev_remain;
+	mutex				_s_lock;
+	SESSION_STATE		_state;
+	int					_id;
+	SOCKET				_socket;
+	int					_prev_remain;
+
+	float				_x, _y, _z;
 
 	SESSION();
 	~SESSION();
@@ -22,7 +24,5 @@ public:
 	void send_login_info_packet();
 	void send_add_player_packet(SESSION* client);
 	void send_chat_packet(int c_id, const char* mess);
-	void send_break_rock_packet(int c_id);
+	void send_move_packet(SESSION* client);
 };
-
-

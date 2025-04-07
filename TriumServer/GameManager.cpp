@@ -169,8 +169,8 @@ void GameManager::Process_packet(int c_id, char* packet)
 		std::cout << p->mess << std::endl;
 		break;
 	}
-	case CS_BREAK_ROCK: {
-		CS_BREAK_ROCK_PAKCET* p = reinterpret_cast<CS_BREAK_ROCK_PAKCET*>(packet);
+	case CS_MOVE: {
+		CS_MOVE_PAKCET* p = reinterpret_cast<CS_MOVE_PAKCET*>(packet);
 
 		for (auto& cl : clients) {
 			if (cl._state != ST_INGAME) continue;

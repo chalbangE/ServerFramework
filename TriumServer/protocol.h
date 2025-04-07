@@ -10,7 +10,6 @@ constexpr int MAX_USER				= 16;
 constexpr char CS_LOGIN				= 0;
 constexpr char CS_MOVE				= 1;
 constexpr char CS_CHAT				= 2;
-constexpr char CS_BREAK_ROCK		= 3;
 
 constexpr char SC_LOGIN_INFO		= 2;
 constexpr char SC_LOGIN_FAIL		= 3;
@@ -27,6 +26,10 @@ struct PACKET {
 	char			type;
 };
 
+
+// ----------------------------------------------------------------------------------
+
+
 struct CS_LOGIN_PACKET : PACKET {
 	char			name[NAME_SIZE];
 };
@@ -35,8 +38,9 @@ struct CS_CHAT_PACKET : PACKET {
 	char			mess[CHAT_SIZE];
 };
 
-struct CS_BREAK_ROCK_PAKCET : PACKET {
+struct CS_MOVE_PAKCET : PACKET {
 	int				id;
+	uint8_t			dir;
 };
 
 
@@ -51,8 +55,11 @@ struct SC_ADD_OBJECT_PACKET : PACKET {
 	int				id;
 };
 
-struct SC_BREAK_ROCK_PAKCET : PACKET {
+struct SC_MOVE_PAKCET : PACKET {
 	int				id;
+	float			x;
+	float			y;
+	float			z;
 };
 
 struct SC_CHAT_PACKET : PACKET {

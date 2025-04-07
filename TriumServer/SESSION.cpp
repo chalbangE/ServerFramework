@@ -55,11 +55,16 @@ void SESSION::send_chat_packet(int c_id, const char* mess)
 	do_send(&chat_packet);
 }
 
-void SESSION::send_break_rock_packet(int c_id)
+void SESSION::send_move_packet(SESSION* client)
 {
-	CS_BREAK_ROCK_PAKCET p;
-	p.id = c_id;
-	p.type = SC_BREAK_ROCK;
+	SC_MOVE_PAKCET p;
+	p.id = client->_id;
+	p.type = SC_MOVE;
 	p.size = sizeof(p);
+	p.x = client->_x;
+	p.y = client->_y;
+	p.z = client->_z;
+
+	std::cout << "Move client << " << p.id << " : { " << p.x << ", " << p.y << ", " << p.z << " }" << std::endl;
 	do_send(&p);
 }
