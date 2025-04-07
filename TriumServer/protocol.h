@@ -38,7 +38,7 @@ struct CS_CHAT_PACKET : PACKET {
 	char			mess[CHAT_SIZE];
 };
 
-struct CS_MOVE_PAKCET : PACKET {
+struct CS_MOVE_PACKET : PACKET {
 	int				id;
 	uint8_t			dir;
 };

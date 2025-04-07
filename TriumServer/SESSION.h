@@ -14,6 +14,8 @@ public:
 	int					_prev_remain;
 
 	float				_x, _y, _z;
+	float				_cx, _cz; 
+		// 카메라가 보고있는 방향만 알면 되기 때문에 y는 필요 없음
 
 	SESSION();
 	~SESSION();

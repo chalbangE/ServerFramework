@@ -172,12 +172,12 @@ void GameManager::Process_packet(int c_id, char* packet)
 	case CS_MOVE: {
 		CS_MOVE_PAKCET* p = reinterpret_cast<CS_MOVE_PAKCET*>(packet);
 
+		// 캐릭터 이동시키는 함수들
+
 		for (auto& cl : clients) {
 			if (cl._state != ST_INGAME) continue;
-			cl.send_break_rock_packet(c_id);
+			cl.send_move_packet(&clients[c_id]);
 		}
-
-		std::cout << "Breaking Rock! : " << p->id << std::endl;
 		break;
 	}
 	}
