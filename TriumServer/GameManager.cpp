@@ -1,7 +1,15 @@
 #include "GameManager.h"
 
+//#include <DirectXMath.h>
+//#include "../../Direct12Framework/SimpleMath.h"
+//#include "../../Direct12Framework/Timer.h"
+//using namespace DirectX;
+//using Vec3 = SimpleMath::Vector3;
+
 GameManager::GameManager()
 {
+	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
 	WSADATA WSAData;
 	WSAStartup(MAKEWORD(2, 2), &WSAData);
 	server_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
@@ -45,12 +53,15 @@ void GameManager::Make_threads()
 	int num_threads = std::thread::hardware_concurrency();
 	for (int i = 0; i < num_threads; ++i)
 		worker_threads.emplace_back( &GameManager::Worker_thread, this );
+		
 	for (auto& th : worker_threads)
 		th.join();	
 }
 
 void GameManager::Worker_thread()
 {
+	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
 	while (true) {
 		DWORD num_bytes;
 		ULONG_PTR key;
@@ -123,6 +134,8 @@ void GameManager::Worker_thread()
 			break;
 		}
 	}
+
+	CoUninitialize();
 }
 
 void GameManager::Disconnect(int c_id)
@@ -170,14 +183,63 @@ void GameManager::Process_packet(int c_id, char* packet)
 		break;
 	}
 	case CS_MOVE: {
-		CS_MOVE_PAKCET* p = reinterpret_cast<CS_MOVE_PAKCET*>(packet);
+		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 
-		// 캐릭터 이동시키는 함수들
-
-		for (auto& cl : clients) {
-			if (cl._state != ST_INGAME) continue;
-			cl.send_move_packet(&clients[c_id]);
+		std::cout << "dir (binary): ";
+		for (int i = 7; i >= 0; --i) {
+			std::cout << ((p->dir >> i) & 1);
 		}
+		std::cout << "\n";
+
+		Vec3 moveDir = Vec3::Zero;
+		Vec3 local_lookDir = Vec3(p->look_x, p->look_y, p->look_z);
+		Vec3 right_dir = local_lookDir.Cross(Vec3::Up);
+		right_dir.Normalize();
+
+		{
+			if (p->dir & KEY_FLAG::KEY_W) {
+				moveDir += local_lookDir;
+				moveDir.y = 0.f;
+				moveDir.Normalize();
+
+			}
+			if (p->dir & KEY_FLAG::KEY_S) {
+				moveDir -= local_lookDir;
+				moveDir.y = 0.f;
+				moveDir.Normalize();
+			}
+			if (p->dir & KEY_FLAG::KEY_D) {
+				moveDir += right_dir;
+				moveDir.y = 0.f;
+				moveDir.Normalize();
+			}
+			if (p->dir & KEY_FLAG::KEY_A) {
+				moveDir -= right_dir;
+				moveDir.y = 0.f;
+				moveDir.Normalize();
+			}
+			if (p->dir & KEY_FLAG::KEY_SHIFT) {
+				moveDir += Vec3::Up;
+			}
+			if (p->dir & KEY_FLAG::KEY_CTRL) {
+				moveDir -= Vec3::Up;
+			}
+		}
+
+		Vec3 acccel = Vec3::Zero;
+		if (moveDir != Vec3::Zero) {
+			//moveDir.Normalize();
+			//float speed = 10.f; // 유저 속도
+			//Vec3 displacement = moveDir * speed * (1 / 110);
+			clients[c_id]._pos += moveDir;
+			clients[c_id]._look_dir = local_lookDir;
+
+			for (auto& cl : clients) {
+				if (cl._state != ST_INGAME) continue;
+				cl.send_move_packet(&clients[c_id]);
+			}
+		}
+
 		break;
 	}
 	}

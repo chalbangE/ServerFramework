@@ -10,6 +10,7 @@ constexpr int MAX_USER				= 16;
 constexpr char CS_LOGIN				= 0;
 constexpr char CS_MOVE				= 1;
 constexpr char CS_CHAT				= 2;
+constexpr char CS_MOUSE_VEC2		= 3;
 
 constexpr char SC_LOGIN_INFO		= 2;
 constexpr char SC_LOGIN_FAIL		= 3;
@@ -41,6 +42,15 @@ struct CS_CHAT_PACKET : PACKET {
 struct CS_MOVE_PACKET : PACKET {
 	int				id;
 	uint8_t			dir;
+	float			look_x;
+	float			look_y;
+	float			look_z;
+};
+
+struct CS_MOUSE_VEC2_PACKET : PACKET {
+	int				id;
+	float			dir_x;
+	float			dir_z;
 };
 
 
@@ -55,7 +65,7 @@ struct SC_ADD_OBJECT_PACKET : PACKET {
 	int				id;
 };
 
-struct SC_MOVE_PAKCET : PACKET {
+struct SC_MOVE_PACKET : PACKET {
 	int				id;
 	float			x;
 	float			y;

@@ -1,6 +1,11 @@
 #pragma once
 #include "stdafx.h"
 #include "OVER_PLUS.h"
+//#include "../../Direct12Framework/SimpleMath.h"
+//
+//using namespace DirectX;
+//using Vec3 = SimpleMath::Vector3;
+
 
 class SESSION
 {
@@ -13,9 +18,8 @@ public:
 	SOCKET				_socket;
 	int					_prev_remain;
 
-	float				_x, _y, _z;
-	float				_cx, _cz; 
-		// 카메라가 보고있는 방향만 알면 되기 때문에 y는 필요 없음
+	Vec3				_pos;	
+	Vec3				_look_dir; // 캐릭터가 보고있는 방향
 
 	SESSION();
 	~SESSION();

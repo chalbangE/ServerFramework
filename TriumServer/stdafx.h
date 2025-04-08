@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <unordered_set>
 #include <concurrent_priority_queue.h>
-#include "protocol.h"
+
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
 #include <windows.h>  
@@ -17,5 +17,7 @@
 
 #include "ENUM.h"
 #include "protocol.h"
+
+#include "Vec3.h"
 
 using namespace std;

@@ -23,6 +23,7 @@
     <ClCompile Include="OVER_PLUS.cpp" />
     <ClCompile Include="SESSION.cpp" />
     <ClCompile Include="Tem_server.cpp" />
+    <ClCompile Include="Vec3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ENUM.h" />
@@ -31,6 +32,7 @@
     <ClInclude Include="protocol.h" />
     <ClInclude Include="SESSION.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Vec3.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

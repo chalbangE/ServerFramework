@@ -57,13 +57,14 @@ void SESSION::send_chat_packet(int c_id, const char* mess)
 
 void SESSION::send_move_packet(SESSION* client)
 {
-	SC_MOVE_PAKCET p;
+	SC_MOVE_PACKET p;
+
 	p.id = client->_id;
-	p.type = SC_MOVE;
+	p.type = SC_MOVE_OBJECT;
 	p.size = sizeof(p);
-	p.x = client->_x;
-	p.y = client->_y;
-	p.z = client->_z;
+	p.x = client->_pos.x;
+	p.y = client->_pos.y;
+	p.z = client->_pos.z;
 
 	std::cout << "Move client << " << p.id << " : { " << p.x << ", " << p.y << ", " << p.z << " }" << std::endl;
 	do_send(&p);
