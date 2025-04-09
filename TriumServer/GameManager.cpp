@@ -4,7 +4,7 @@
 //#include "../../Direct12Framework/SimpleMath.h"
 //#include "../../Direct12Framework/Timer.h"
 //using namespace DirectX;
-//using Vec3 = SimpleMath::Vector3;
+//using SVec3 = SimpleMath::Vector3;
 
 GameManager::GameManager()
 {
@@ -191,9 +191,9 @@ void GameManager::Process_packet(int c_id, char* packet)
 		}
 		std::cout << "\n";
 
-		Vec3 moveDir = Vec3::Zero;
-		Vec3 local_lookDir = Vec3(p->look_x, p->look_y, p->look_z);
-		Vec3 right_dir = local_lookDir.Cross(Vec3::Up);
+		SVec3 moveDir = SVec3::Zero;
+		SVec3 local_lookDir = SVec3(p->look_x, p->look_y, p->look_z);
+		SVec3 right_dir = local_lookDir.Cross(SVec3::Up);
 		right_dir.Normalize();
 
 		{
@@ -201,7 +201,6 @@ void GameManager::Process_packet(int c_id, char* packet)
 				moveDir += local_lookDir;
 				moveDir.y = 0.f;
 				moveDir.Normalize();
-
 			}
 			if (p->dir & KEY_FLAG::KEY_S) {
 				moveDir -= local_lookDir;
@@ -219,19 +218,22 @@ void GameManager::Process_packet(int c_id, char* packet)
 				moveDir.Normalize();
 			}
 			if (p->dir & KEY_FLAG::KEY_SHIFT) {
-				moveDir += Vec3::Up;
+				moveDir += SVec3(0, 1, 0);
+				// cout << moveDir.x << ", " << moveDir.y << ", " << moveDir.z << endl;
+				//cout << SVec3::Up.x << ", " << SVec3::Up.y << ", " << SVec3::Up.z << endl;
 			}
 			if (p->dir & KEY_FLAG::KEY_CTRL) {
-				moveDir -= Vec3::Up;
+				moveDir -= SVec3(0, 1, 0);
+				//cout << moveDir.x << ", " << moveDir.y << ", " << moveDir.z << endl;
 			}
 		}
 
-		Vec3 acccel = Vec3::Zero;
-		if (moveDir != Vec3::Zero) {
+		SVec3 acccel = SVec3::Zero;
+		if (moveDir != SVec3::Zero) {
 			//moveDir.Normalize();
 			//float speed = 10.f; // 유저 속도
-			//Vec3 displacement = moveDir * speed * (1 / 110);
-			clients[c_id]._pos += moveDir;
+			//SVec3 displacement = moveDir * speed * (1 / 110);
+			clients[c_id]._pos += (moveDir / 10.f);
 			clients[c_id]._look_dir = local_lookDir;
 
 			for (auto& cl : clients) {

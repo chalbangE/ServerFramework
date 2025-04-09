@@ -4,7 +4,7 @@
 //#include "../../Direct12Framework/SimpleMath.h"
 //
 //using namespace DirectX;
-//using Vec3 = SimpleMath::Vector3;
+//using SVec3 = SimpleMath::Vector3;
 
 
 class SESSION
@@ -18,8 +18,8 @@ public:
 	SOCKET				_socket;
 	int					_prev_remain;
 
-	Vec3				_pos;	
-	Vec3				_look_dir; // 캐릭터가 보고있는 방향
+	SVec3				_pos;	
+	SVec3				_look_dir; // 캐릭터가 보고있는 방향
 
 	SESSION();
 	~SESSION();
