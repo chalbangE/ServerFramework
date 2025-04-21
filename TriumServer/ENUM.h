@@ -12,3 +12,16 @@ enum KEY_FLAG : uint8_t {
 	KEY_SHIFT = 0x10,
 	KEY_CTRL = 0x20
 };
+
+enum S_OBJECT_TYPE : UINT8
+{
+    S_PLAYER,
+    S_ENEMY,
+    S_ITEM,
+    S_PLAYER_PROJECTILE,
+    S_ENEMY_PROJECTILE,
+    S_OBSTACLE,
+	S_TRIGGER,
+
+	S_end
+};

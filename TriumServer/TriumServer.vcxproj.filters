@@ -19,6 +19,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{eef34143-f8f5-4a45-bca2-cc0587dd015f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tem_server.cpp">
@@ -33,7 +36,10 @@
     <ClCompile Include="SESSION.cpp">
       <Filter>Class</Filter>
     </ClCompile>
-    <ClCompile Include="Vec3.cpp">
+    <ClCompile Include="SimpleMath.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
       <Filter>Class</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,8 +62,16 @@
     <ClInclude Include="SESSION.h">
       <Filter>Class</Filter>
     </ClInclude>
-    <ClInclude Include="Vec3.h">
+    <ClInclude Include="SimpleMath.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
       <Filter>Class</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SimpleMath.inl">
+      <Filter>Utility</Filter>
+    </None>
   </ItemGroup>
 </Project>

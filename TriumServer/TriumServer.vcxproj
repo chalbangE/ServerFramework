@@ -20,19 +20,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="Object.cpp" />
     <ClCompile Include="OVER_PLUS.cpp" />
     <ClCompile Include="SESSION.cpp" />
+    <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="Tem_server.cpp" />
-    <ClCompile Include="Vec3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ENUM.h" />
     <ClInclude Include="GameManager.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="OVER_PLUS.h" />
     <ClInclude Include="protocol.h" />
     <ClInclude Include="SESSION.h" />
+    <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Vec3.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SimpleMath.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

@@ -19,7 +19,6 @@ constexpr char SC_REMOVE_OBJECT		= 5;
 constexpr char SC_MOVE_OBJECT		= 6;
 constexpr char SC_CHAT				= 7;
 constexpr char SC_SCENE_CHANGE		= 8;
-constexpr char SC_BREAK_ROCK		= 9;
 
 #pragma pack (push, 1)
 struct PACKET {

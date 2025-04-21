@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <unordered_set>
 #include <concurrent_priority_queue.h>
+#include <fstream>
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
@@ -18,6 +19,13 @@
 #include "ENUM.h"
 #include "protocol.h"
 
-#include "Vec3.h"
+#include <DirectXMath.h>
+#include "SimpleMath.h"
 
 using namespace std;
+
+
+using namespace DirectX;
+using namespace DirectX::PackedVector;
+using Vec3 = SimpleMath::Vector3;
+using SimpleMath::Quaternion;

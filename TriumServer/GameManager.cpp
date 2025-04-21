@@ -1,13 +1,22 @@
-#include "GameManager.h"
+﻿#include "GameManager.h"
+
 
 //#include <DirectXMath.h>
 //#include "../../Direct12Framework/SimpleMath.h"
 //#include "../../Direct12Framework/Timer.h"
 //using namespace DirectX;
-//using SVec3 = SimpleMath::Vector3;
+//using Vec3 = SimpleMath::Vector3;
 
 GameManager::GameManager()
 {
+	lastTime = std::chrono::high_resolution_clock::now();
+	terrain.SetResolution(513); 
+	terrain.SetNavMapResolution(terrain.GetResolution() * 2); 
+	terrain.SetScale(45, 20, 45); 
+	terrain.LoadHeightMap("LobbyHeightmap"); 
+	terrain.LoadNavMap("LobbyTerrainNavMap");
+	cout << "Map loaded.\n";
+
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
 	WSADATA WSAData;
@@ -185,57 +194,109 @@ void GameManager::Process_packet(int c_id, char* packet)
 	case CS_MOVE: {
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 
-		std::cout << "dir (binary): ";
-		for (int i = 7; i >= 0; --i) {
-			std::cout << ((p->dir >> i) & 1);
-		}
-		std::cout << "\n";
-
-		SVec3 moveDir = SVec3::Zero;
-		SVec3 local_lookDir = SVec3(p->look_x, p->look_y, p->look_z);
-		SVec3 right_dir = local_lookDir.Cross(SVec3::Up);
+		// 이동 방향 계산
+		Vec3 moveDir = Vec3::Zero;
+		Vec3 local_lookDir = Vec3(p->look_x, p->look_y, p->look_z);
+		Vec3 right_dir = local_lookDir.Cross(Vec3::Up);
+		right_dir.y = 0.f;
 		right_dir.Normalize();
+		local_lookDir.y = 0.f;
+		local_lookDir.Normalize();
 
-		{
-			if (p->dir & KEY_FLAG::KEY_W) {
-				moveDir += local_lookDir;
-				moveDir.y = 0.f;
-				moveDir.Normalize();
+		if (p->dir & KEY_FLAG::KEY_W) moveDir += local_lookDir;
+		if (p->dir & KEY_FLAG::KEY_S) moveDir -= local_lookDir;
+		if (p->dir & KEY_FLAG::KEY_D) moveDir += right_dir;
+		if (p->dir & KEY_FLAG::KEY_A) moveDir -= right_dir;
+		if (p->dir & KEY_FLAG::KEY_SHIFT) moveDir += Vec3(0, -1, 0); // 하강
+		if (p->dir & KEY_FLAG::KEY_CTRL) moveDir += Vec3(0, 1, 0);  // 상승
+
+		// 가속도 및 속도 계산
+		Vec3 accel = Vec3::Zero;
+		bool isDecelerate = true;
+
+		if (moveDir.LengthSquared() > 0.0001f) {
+			moveDir.Normalize();
+
+			Vec3 currentVelocity = clients[c_id]._velocity;
+			float currentSpeed = currentVelocity.Length();
+			if (currentVelocity.LengthSquared() > 0.0001f) {
+				Vec3 currentDir = currentVelocity.GetNormalized();
+				float dot = currentDir.Dot(moveDir);
+
+				if (dot < 0.0f) {
+					accel = -currentDir * 20.f; // 단항 마이너스 연산자
+				}
+				else {
+					float scale = currentSpeed * dot;
+					clients[c_id]._velocity = moveDir * scale; // 스칼라-벡터 곱셈
+					accel = moveDir * 10.f;
+					isDecelerate = false;
+				}
 			}
-			if (p->dir & KEY_FLAG::KEY_S) {
-				moveDir -= local_lookDir;
-				moveDir.y = 0.f;
-				moveDir.Normalize();
-			}
-			if (p->dir & KEY_FLAG::KEY_D) {
-				moveDir += right_dir;
-				moveDir.y = 0.f;
-				moveDir.Normalize();
-			}
-			if (p->dir & KEY_FLAG::KEY_A) {
-				moveDir -= right_dir;
-				moveDir.y = 0.f;
-				moveDir.Normalize();
-			}
-			if (p->dir & KEY_FLAG::KEY_SHIFT) {
-				moveDir += SVec3(0, 1, 0);
-				// cout << moveDir.x << ", " << moveDir.y << ", " << moveDir.z << endl;
-				//cout << SVec3::Up.x << ", " << SVec3::Up.y << ", " << SVec3::Up.z << endl;
-			}
-			if (p->dir & KEY_FLAG::KEY_CTRL) {
-				moveDir -= SVec3(0, 1, 0);
-				//cout << moveDir.x << ", " << moveDir.y << ", " << moveDir.z << endl;
+			else {
+				accel = moveDir * 10.f;
+				isDecelerate = false;
 			}
 		}
 
-		SVec3 acccel = SVec3::Zero;
-		if (moveDir != SVec3::Zero) {
-			//moveDir.Normalize();
-			//float speed = 10.f; // ���� �ӵ�
-			//SVec3 displacement = moveDir * speed * (1 / 110);
-			clients[c_id]._pos += (moveDir / 10.f);
-			clients[c_id]._look_dir = local_lookDir;
+		// 속도 업데이트
+		Vec3 currentVelocity = clients[c_id]._velocity;
+		currentVelocity += accel * (1.f / 110.f);
+		if (isDecelerate && currentVelocity.LengthSquared() > 0.0001f) {
+			Vec3 friction = -currentVelocity.GetNormalized() * 20.f;
+			currentVelocity += friction * (1.f / 110.f);
+			if (currentVelocity.LengthSquared() < 0.01f) {
+				currentVelocity = Vec3::Zero;
+			}
+		}
+		clients[c_id]._velocity = currentVelocity;
+		clients[c_id]._acceleration = accel;
 
+		// 위치 업데이트 (지형 검사 가정)
+		Vec3 newPos = clients[c_id]._pos + currentVelocity * (1.f / 110.f);			
+		
+		if (CanMove(newPos.x, newPos.z)) {
+			moveDir.Normalize();
+
+			Vec3 currentVelocity = clients[c_id]._velocity;
+			float currentSpeed = currentVelocity.Length();
+			if (currentVelocity != Vec3::Zero) {
+				Vec3 currentDir = currentVelocity.GetNormalized();
+				float dot = currentDir.Dot(moveDir);
+
+				if (dot < 0.0f) {
+					accel = -currentDir * 20.f;
+				}
+				else {
+					clients[c_id]._velocity = (currentSpeed * dot * moveDir);
+					accel = moveDir * 10.f;
+					isDecelerate = false;
+				}
+			}
+			else {
+				accel = moveDir * 10.f; // Á¤Áö »óÅÂ¿¡¼­ °¡¼Ó
+				isDecelerate = false;
+			}
+
+			float rotationSpeed = 10.f; 
+			float deltaTime = GetDeltaTime();
+
+			if (moveDir.LengthSquared() > 0.001f)
+			{
+				Quaternion targetRot = Quaternion::LookRotation(moveDir);
+				Quaternion rotation = Quaternion::Slerp(clients[c_id]._look_rotation, targetRot, rotationSpeed * deltaTime);
+				clients[c_id]._look_rotation = rotation;
+			}
+
+			float terrainHeight = terrain.GetHeight(clients[c_id]._pos.x, clients[c_id]._pos.z);
+			clients[c_id]._pos.y = terrainHeight;
+
+			// 회전 업데이트
+			if (moveDir.LengthSquared() > 0.001f) {
+				clients[c_id]._look_dir = moveDir;
+			}
+
+			// 모든 클라이언트에게 이동 패킷 전송
 			for (auto& cl : clients) {
 				if (cl._state != ST_INGAME) continue;
 				cl.send_move_packet(&clients[c_id]);
@@ -245,4 +306,28 @@ void GameManager::Process_packet(int c_id, char* packet)
 		break;
 	}
 	}
+}
+
+bool GameManager::CanMove(float x, float z)
+{
+	if (terrain.mNavMapData.empty()) {
+		return false;
+	}
+	float localX = x - terrain.GetOffset().x;
+	float localZ = z - terrain.GetOffset().z;
+	if (localX < 0.0f || localZ < 0.0f || localX >= terrain.GetScale().x || localZ >= terrain.GetScale().z) {
+		return false;
+	}
+	float xIndex = localX / (terrain.GetScale().x / (terrain.GetNavMapResolution()));
+	float zIndex = localZ / (terrain.GetScale().z / (terrain.GetNavMapResolution()));
+	zIndex = terrain.GetNavMapResolution() - zIndex;
+	xIndex = static_cast<int>(xIndex);
+	zIndex = static_cast<int>(zIndex);
+
+	int idx = xIndex + (zIndex * terrain.GetNavMapResolution());
+	if (terrain.mNavMapData[idx] != 0) {
+		return true;
+	}
+
+	return false;
 }

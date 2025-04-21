@@ -1,13 +1,7 @@
 #include "SESSION.h"
 
 
-SESSION::SESSION()
-{
-	_id = -1;
-	_socket = 0;
-	_state = ST_FREE;
-	_prev_remain = 0;
-}
+
 
 SESSION::~SESSION() {}
 
